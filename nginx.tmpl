@@ -1,0 +1,27 @@
+# This is written GoLang text template https://golang.org/pkg/text/template/
+
+{{range  $host,$containers := groupBy "ENV.VIRTUAL_HOST"}}
+
+upstream {{$host}}{
+  {{range $container := $containers}}
+  server {{$container.NAME}}:{{container.PORT}}
+
+}
+
+{{end}}
+
+server{
+listen 80 example.com default server;
+listen [::]:80 example.com;
+
+{{range  $host,$containers := groupBy "ENV.VIRTUAL_HOST"}}
+
+{{$container  := last $containers}}
+location /{{$container.NAME}{
+  proxy_pass http://{{$host}}
+  proxy_cache off;
+}
+
+{{end}}
+
+}
